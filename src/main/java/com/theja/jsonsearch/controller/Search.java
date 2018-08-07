@@ -4,8 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
-import org.apache.commons.lang3.StringUtils;
 import com.theja.jsonsearch.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +22,7 @@ import java.util.Set;
  */
 public class Search {
 
+    private static final Logger LOGGER = LogManager.getLogger();
     /**
      * This is main implementation of search. We use Gson stream reader
      * Since the JSON would be too big to hold in memory (by building an object model), we need to do stream processing
@@ -32,10 +35,11 @@ public class Search {
      * @param optedSearchValue The search string that client is interested in
      */
     public static List<JsonObject> performSearchOperation(String optedCategory,
-                                                           String optedSearchTerm,
-                                                           String optedSearchValue) throws IOException {
+                                                          String optedSearchTerm,
+                                                          String optedSearchValue) throws IOException {
         String errMsg = validateSearchParms(optedCategory, optedSearchTerm, optedSearchValue);
         if(StringUtils.isNotEmpty(errMsg)) {
+            LOGGER.info("Search cannot be performed because of invalid search parameters");
             throw new IllegalArgumentException(errMsg);
         }
         List<JsonObject> searchResult = new ArrayList<>();
@@ -66,7 +70,7 @@ public class Search {
     private static String validateSearchParms(String optedCategory,
                                               String optedSearchTerm,
                                               String optedSearchValue) {
-        StringBuffer errMsg = new StringBuffer();
+        StringBuilder errMsg = new StringBuilder();
         if (StringUtils.isEmpty(optedCategory)) {
             errMsg.append("Search category can't be empty.");
         }
@@ -103,8 +107,8 @@ public class Search {
             jsonObject = readFieldsFromAnyObjectOnCategory(optedCategory);
         }
         catch (IOException ex) {
-            System.out.println(
-                    String.format("Cannot retrieve the fields from first object from %s json file", optedCategory));
+            LOGGER.error(
+                    String.format("Cannot retrieve the fields from first object from %s json file", optedCategory), ex);
         }
         return jsonObject.keySet();
     }
@@ -118,7 +122,7 @@ public class Search {
         Gson gson = new Gson();
         InputStream jsonStream = JsonUtils.getJsonStreamFromFile(optedCategory);
         JsonObject jsonObject = null;
-        try(JsonReader streamReader = new JsonReader(new InputStreamReader(jsonStream, "UTF-8"))){
+        try(JsonReader streamReader = new JsonReader(new InputStreamReader(jsonStream, StandardCharsets.UTF_8.name()))){
             streamReader.beginArray();
             if (streamReader.hasNext()) {
                 jsonObject = gson.fromJson(streamReader, JsonObject.class);

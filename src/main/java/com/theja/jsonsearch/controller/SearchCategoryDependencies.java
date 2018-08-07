@@ -3,6 +3,8 @@ package com.theja.jsonsearch.controller;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Tickets entity (tickets.json file) will have users i.e., submitter_id and assignee_id as dependencies
  */
 public class SearchCategoryDependencies {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private static final String USERS = "users";
     private static final String TICKETS = "tickets";
@@ -29,6 +33,9 @@ public class SearchCategoryDependencies {
     private static final String JSON_KEY_TICKETS = "tickets_";
     private static final String TICKET_FIELD_SUBJECT = "subject";
 
+    /**
+     * TODO
+     */
     public static JsonObject appendRelatedFields(String currentOptedCategory, JsonObject jsonObject) throws IOException {
         if (StringUtils.equalsIgnoreCase(currentOptedCategory, ORGS)) {
             // TODO
@@ -53,6 +60,7 @@ public class SearchCategoryDependencies {
      * in one organization
      */
     private static JsonObject appendSingleUserDetails(JsonObject jsonObject, String userIdField) throws IOException {
+        LOGGER.debug(String.format("Fetching user name from %s", userIdField));
         JsonElement userId = jsonObject.get(userIdField);
         String fieldName = userIdField.equals(TICKET_FIELD_ASSIGNEE_ID) ? JSON_KEY_ASSIGNEE_NAME : JSON_KEY_SUBMITTER_NAME;
         if(userId != null && StringUtils.isNotEmpty(userId.getAsString())) {
@@ -71,13 +79,14 @@ public class SearchCategoryDependencies {
      * Because of the assumption above we just retrieve the first result
      */
     private static JsonObject appendOrgDetails(JsonObject jsonObject) throws IOException {
+        LOGGER.debug("Fetching organization name from orgId");
         if(jsonObject.get(JSON_FIELD_ORG_ID) != null && StringUtils.isNotEmpty(jsonObject.get(JSON_FIELD_ORG_ID).getAsString())) {
             String id = jsonObject.get(JSON_FIELD_ORG_ID).getAsString();
             List<JsonObject> orgDetails = Search.performSearchOperation(ORGS, JSON_FIELD_ID, id);
             orgDetails.stream()
                     .findFirst()
-                    .ifPresent(orgDetail ->
-                            jsonObject.addProperty(JSON_KEY_ORGANIZATION_NAME, orgDetail.get(JSON_FIELD_NAME).getAsString()));
+                    .ifPresent(orgDetail -> jsonObject.addProperty(JSON_KEY_ORGANIZATION_NAME,
+                            orgDetail.get(JSON_FIELD_NAME).getAsString()));
         }
         return jsonObject;
     }
@@ -87,6 +96,7 @@ public class SearchCategoryDependencies {
      * If there are multiple tickets, the json key is appended in key_i format where i is number of the ticket
      */
     private static JsonObject appendTicketDetailsSubmittedByUser(JsonObject jsonObject) throws IOException {
+        LOGGER.debug("Fetching all ticket subjects submitted by selected user");
         String id = jsonObject.get(JSON_FIELD_ID).getAsString();
         List<JsonObject> ticketDetails = Search.performSearchOperation(TICKETS, TICKET_FIELD_SUBMITTER_ID, id);
         AtomicInteger counter = new AtomicInteger(0);

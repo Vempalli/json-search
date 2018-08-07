@@ -1,10 +1,10 @@
 package com.theja.jsonsearch.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.theja.jsonsearch.controller.SearchCategoryDependencies;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.List;
  * methods to work on gson's JSON object
  */
 public class JsonUtils {
-
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String JSON_FILE_EXTENSION = ".json";
 
 
@@ -29,30 +29,29 @@ public class JsonUtils {
         InputStream targetStream =
                 clazz.getResourceAsStream(File.separator + optedCategory + JSON_FILE_EXTENSION);
         if (targetStream == null) {
+            LOGGER.debug(String.format("unable to read from target stream which is null for %s", optedCategory));
             throw new IllegalStateException(String.format("Unable to generate stream from %s.json", optedCategory));
         }
         return targetStream;
     }
 
+    /**
+     * Once the search is performed this method prints the matched results and
+     * also appends the details about related fields for each of matched result
+     */
     public static void printResults(String optedCategory, List<JsonObject> results) {
         if (CollectionUtils.isEmpty(results)) {
-            System.out.println("No results found");
+            PrintUtils.print("No results found");
         }
         results.forEach(jsonObject -> {
             try {
                 jsonObject = SearchCategoryDependencies.appendRelatedFields(optedCategory, jsonObject);
             } catch (IOException ex) {
-                System.out.println(String.format("Can't retrieve related fields for %s", optedCategory));
+                LOGGER.error(String.format("Can't retrieve related fields for %s", optedCategory), ex);
             }
-            printPretty(jsonObject);
+            PrintUtils.printPretty(jsonObject);
         });
     }
 
-    private static void printPretty(JsonObject jsonObject) {
-        if (jsonObject != null) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            System.out.println(gson.toJson(jsonObject));
-        }
-    }
 
 }
