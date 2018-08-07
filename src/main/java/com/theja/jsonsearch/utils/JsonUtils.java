@@ -38,15 +38,14 @@ public class JsonUtils {
         if (CollectionUtils.isEmpty(results)) {
             System.out.println("No results found");
         }
-        for (JsonObject jsonObject : results) {
+        results.forEach(jsonObject -> {
             try {
-                SearchCategoryDependencies.appendRelatedFields(optedCategory, jsonObject);
-            }
-            catch (IOException ex) {
+                jsonObject = SearchCategoryDependencies.appendRelatedFields(optedCategory, jsonObject);
+            } catch (IOException ex) {
                 System.out.println(String.format("Can't retrieve related fields for %s", optedCategory));
             }
             printPretty(jsonObject);
-        }
+        });
     }
 
     private static void printPretty(JsonObject jsonObject) {
