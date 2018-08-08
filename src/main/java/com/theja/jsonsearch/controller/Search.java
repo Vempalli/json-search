@@ -1,5 +1,8 @@
 package com.theja.jsonsearch.controller;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -9,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This utils class holds all the methods that are required for searching the required JSON
@@ -23,6 +29,33 @@ import java.util.Set;
 public class Search {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final int CACHE_EXPIRE_TIME = 10;
+    private static final int MAXIMUM_CACHE_ENTRIES = 3; // we only have users, orgs and ticket objects
+
+    /**
+     * Since all objects in same category has same fields in their JSON, we can speed up multiple searches
+     * by just caching the list of fields. We would rarely add/delete fields so it makes sense to cache
+     * The cache is evicted based on time. Currently it's set to 10 min this value can be made dynamic
+     * and the size of cache is just set to 10 (but there are just 3 objects in our case)
+     */
+    private static LoadingCache<String, Set<String>> searchableFields = CacheBuilder.newBuilder()
+            .maximumSize(MAXIMUM_CACHE_ENTRIES)
+            .expireAfterWrite(CACHE_EXPIRE_TIME, TimeUnit.MINUTES)
+            .build(
+                    new CacheLoader<String, Set<String>>() {
+                        public Set<String> load(@Nonnull String optedCategory) {
+                            JsonObject jsonObject = new JsonObject();
+                            try {
+                                jsonObject = readFieldsFromAnyObjectOnCategory(optedCategory);
+                            }
+                            catch (IOException ex) {
+                                LOGGER.error(
+                                        String.format("Cannot retrieve the fields from first object from %s json file",
+                                                optedCategory), ex);
+                            }
+                            return jsonObject.keySet();
+                        }
+                    });
     /**
      * This is main implementation of search. We use Gson stream reader
      * Since the JSON would be too big to hold in memory (by building an object model), we need to do stream processing
@@ -101,16 +134,8 @@ public class Search {
     /**
      * Gets the list of all searchable fields based on category type selected
      */
-    public static Set<String> getAvailableSearchableFieldsOnCategory(String optedCategory) {
-        JsonObject jsonObject = new JsonObject();
-        try {
-            jsonObject = readFieldsFromAnyObjectOnCategory(optedCategory);
-        }
-        catch (IOException ex) {
-            LOGGER.error(
-                    String.format("Cannot retrieve the fields from first object from %s json file", optedCategory), ex);
-        }
-        return jsonObject.keySet();
+    public static Set<String> getAvailableSearchableFieldsOnCategory(String optedCategory) throws ExecutionException {
+        return searchableFields.get(optedCategory);
     }
 
     /**

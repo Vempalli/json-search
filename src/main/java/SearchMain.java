@@ -9,9 +9,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
@@ -33,52 +35,84 @@ public class SearchMain {
         WELCOME_MENU.add(QUIT);
     }
 
+    private static Scanner scanner = null;
+
+    /**
+     * Present initial menu and request for user choice
+     * Based on choice perform json search
+     */
     public static void main(String[] args) {
         PrintUtils.print("Welcome to Search");
         while (true) {
             printWelcomeText();
-            // read the category that user intends to search
-            Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
+            // 1.Read the category that user intends to search
+            scanner = new Scanner(System.in, StandardCharsets.UTF_8.name());
             String optedCategory = scanner.nextLine().trim();
             if(!StringUtils.isNumeric(optedCategory)) {
+                LOGGER.debug("User entered invalid text for search category");
                 PrintUtils.print("Invalid option entered. " +
                         "Please enter a number between 1 and 4 based on below preference");
                 continue;
             }
             int selectedCategory = Integer.parseInt(optedCategory);
             if(selectedCategory <= 0 || selectedCategory > WELCOME_MENU.size()) {
+                LOGGER.debug("User entered invalid search category");
                 PrintUtils.print("Invalid text entered. " +
                         "Please enter a number between 1 and 4 based on below preference");
                 continue;
             }
 
-            if (WELCOME_MENU.indexOf(QUIT) == (selectedCategory-1)) {
+            if (WELCOME_MENU.indexOf(QUIT) == (selectedCategory - 1)) {
+                LOGGER.info("Exiting search");
                 System.exit(1);
             }
-            String selectedCategoryName = WELCOME_MENU.get(selectedCategory-1);
-            // based on selected search category, show searchable fields
-            PrintUtils.print(String.format("Below are the searchable fields for category %s, select your search term",
-                            selectedCategoryName));
-
-            Set<String> availableFields = Search.getAvailableSearchableFieldsOnCategory(selectedCategoryName);
-            availableFields.forEach(PrintUtils::print);
+            String selectedCategoryName = WELCOME_MENU.get(selectedCategory - 1);
+            //2. Get the name of search field user wants to search
+            Set<String> availableFields = printAndGetAvailableFields(selectedCategoryName);;
             String optedSearchTerm = scanner.nextLine().trim();
             if(StringUtils.isEmpty(optedSearchTerm) || !availableFields.contains(optedSearchTerm)) {
                 PrintUtils.print("Invalid searchable field selected. " +
                         "Please make sure you selected correct category and field");
                 continue;
             }
-            PrintUtils.print("Enter the search value");
-            String optedSearchValue = scanner.nextLine().trim();
-            try{
-                List<JsonObject> searchResult =
-                        Search.performSearchOperation(selectedCategoryName, optedSearchTerm, optedSearchValue);
-                JsonUtils.printResults(selectedCategoryName, searchResult);
-            }
-            catch (IOException ex) {
-                LOGGER.error("Unable to perform search currently", ex);
-                PrintUtils.print("Unable to perform search currently. Please contact support team");
-            }
+            //3. Get the search value that user wants to search and perform search
+            requestSearchValueAndProcessSearch(selectedCategoryName, optedSearchTerm);
+        }
+    }
+
+    private static Set<String> printAndGetAvailableFields(String selectedCategoryName) {
+        Set<String> availableFields = new HashSet<>();
+        try {
+            // based on selected search category, show searchable fields
+            availableFields = Search.getAvailableSearchableFieldsOnCategory(selectedCategoryName);
+        } catch (ExecutionException ex) {
+            LOGGER.error("Unable to retrieve fields available to search from cache", ex);
+            PrintUtils.print("Unable to perform search currently. Please contact support team");
+        }
+        // print all the available fields to search in some formatted order
+        PrintUtils.print(String.format("Below are the searchable fields for category \"%s\", pick your search term",
+                selectedCategoryName));
+        availableFields.stream()
+                .map(availableField -> "\t" + availableField)
+                .forEach(PrintUtils::print);
+        PrintUtils.print("Please type a field name that you want to search from above list: ");
+        return availableFields;
+    }
+
+    private static void requestSearchValueAndProcessSearch(String selectedCategoryName,
+                                                           String optedSearchTerm) {
+        PrintUtils.print(String.format("Please enter the search value to look in \"%s\" data against \"%s\" field: ",
+                selectedCategoryName, optedSearchTerm));
+
+        String optedSearchValue = scanner.nextLine().trim();
+        try{
+            List<JsonObject> searchResult =
+                    Search.performSearchOperation(selectedCategoryName, optedSearchTerm, optedSearchValue);
+            JsonUtils.printResults(selectedCategoryName, searchResult);
+        }
+        catch (IOException ex) {
+            LOGGER.error("Unable to perform search currently", ex);
+            PrintUtils.print("Unable to perform search currently. Please contact support team");
         }
     }
 

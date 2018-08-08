@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Ex: User category (users.json file) will have organization_id as a field so organization is a dependency
  * Tickets entity (tickets.json file) will have users i.e., submitter_id and assignee_id as dependencies
  */
-public class SearchCategoryDependencies {
+public class SearchDependencies {
 
     private static final Logger LOGGER = LogManager.getLogger();
 

@@ -1,7 +1,7 @@
 package com.theja.jsonsearch.utils;
 
 import com.google.gson.JsonObject;
-import com.theja.jsonsearch.controller.SearchCategoryDependencies;
+import com.theja.jsonsearch.controller.SearchDependencies;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +45,7 @@ public class JsonUtils {
         }
         results.forEach(jsonObject -> {
             try {
-                jsonObject = SearchCategoryDependencies.appendRelatedFields(optedCategory, jsonObject);
+                jsonObject = SearchDependencies.appendRelatedFields(optedCategory, jsonObject);
             } catch (IOException ex) {
                 LOGGER.error(String.format("Can't retrieve related fields for %s", optedCategory), ex);
             }
