@@ -89,6 +89,10 @@ public class SearchMain {
             LOGGER.error("Unable to retrieve fields available to search from cache", ex);
             PrintUtils.print("Unable to perform search currently. Please contact support team");
         }
+        catch (Exception ex) {
+            LOGGER.error("Possible UncheckedExecutionException from guava cache", ex);
+            PrintUtils.print("Unable to perform search currently. Please contact support team");
+        }
         // print all the available fields to search in some formatted order
         PrintUtils.print(String.format("Below are the searchable fields for category \"%s\", pick your search term",
                 selectedCategoryName));

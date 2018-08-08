@@ -134,7 +134,7 @@ public class Search {
     /**
      * Gets the list of all searchable fields based on category type selected
      */
-    public static Set<String> getAvailableSearchableFieldsOnCategory(String optedCategory) throws ExecutionException {
+    public static Set<String> getAvailableSearchableFieldsOnCategory(String optedCategory) throws Exception {
         return searchableFields.get(optedCategory);
     }
 
