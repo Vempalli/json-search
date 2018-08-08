@@ -34,13 +34,23 @@ public class SearchDependencies {
     private static final String TICKET_FIELD_SUBJECT = "subject";
 
     /**
-     * TODO
+     * This method appends related fields on the returned search results.
+     * Currently we only handle related fields for tickets and users category
+     * meaning,
+     *
+     * when a match is found on one or more ticket objects, on each of the returned ticket object we
+     *  - retrieve the name of organization for this ticket
+     *  - retrieve the name of user who requested this ticket
+     *  - retrieve the name of user who got this ticket assigned
+     * when a match is found on one or many user objects, on each of the returned user object we
+     *  - retrieve the name of user organization
+     *  - If any tickets created by users show the ticket subject name
+     *
+     *  Note: I did not implement fetching the user and ticket details for organization search as there will be
+     *  many to many entries in both cases, but can be done same way as below
      */
     public static JsonObject appendRelatedFields(String currentOptedCategory, JsonObject jsonObject) throws IOException {
-        if (StringUtils.equalsIgnoreCase(currentOptedCategory, ORGS)) {
-            // TODO
-        }
-        else if (StringUtils.equalsIgnoreCase(currentOptedCategory, TICKETS)) {
+        if (StringUtils.equalsIgnoreCase(currentOptedCategory, TICKETS)) {
             // include users and org details
             jsonObject = appendOrgDetails(jsonObject);
             jsonObject = appendSingleUserDetails(jsonObject, TICKET_FIELD_ASSIGNEE_ID);
