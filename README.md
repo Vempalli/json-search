@@ -68,7 +68,17 @@ list of fields that are present in each json object type. I could have applied t
 between different objects or actual search results for that matter using guava but I am constrained by time on submitting this project.
 
 #### Process Flow
-may be a flow chart or picture explaining different classes
+The below diagram is just a flow/block diagram explaining all the different components involved
+![Diagram](Block_Diagram.JPG)
+1. SearchMain is the entry point where user is presented menu and reads the user choices
+2. Present the user with the list of available fields to search from selected category. These fields are cached and gets
+refreshed every 10 minutes
+3. Once the user selects the field and enters search term, invoke the Search class's search functionality which uses
+JsonUtils to read the JSON data in streaming fashion
+4. If a match is found collect the matched items in a list as there can be one or more matches
+5. For every matched result, retrieve the related items and append the related item to matched result. The definition of
+related item is explained in Features Available section
+6. Finally pretty print the result and display matched results and related information to user
 
 #### Future enhancements
 * Currently the application is built considering single user use. We can support multiple requests by implementing 
