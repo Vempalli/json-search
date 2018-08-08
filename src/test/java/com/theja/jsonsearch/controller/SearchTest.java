@@ -1,47 +1,90 @@
 package com.theja.jsonsearch.controller;
 
+import com.google.gson.JsonObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Set;
-
-import static org.junit.Assert.*;
 
 public class SearchTest {
 
     @Test
-    public void performSuccessfulSearchOperationOnUsersCategory() {
-
+    public void performSuccessfulSearchOperationOnUsersCategory() throws IOException {
+        String optedCategory = "users";
+        String optedField = "_id";
+        String searchValue = "71";
+        List<JsonObject> result = Search.performSearchOperation(optedCategory, optedField, searchValue);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(result.isEmpty());
+        Assert.assertEquals(result.size(),1);
+        JsonObject searchMatch = result.get(0);
+        Assert.assertEquals(searchMatch.get("name").getAsString(), "Prince Hinton");
     }
 
     @Test
-    public void performSuccessfulSearchOperationOnOrganizationCategory() {
-
+    public void performSuccessfulSearchOperationOnOrganizationCategory() throws IOException {
+        String optedCategory = "organizations";
+        String optedField = "name";
+        String searchValue = "Enthaze";
+        List<JsonObject> result = Search.performSearchOperation(optedCategory, optedField, searchValue);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(result.isEmpty());
+        Assert.assertEquals(result.size(),1);
+        JsonObject searchMatch = result.get(0);
+        Assert.assertEquals(searchMatch.get("_id").getAsString(), "101");
     }
 
     @Test
-    public void performSuccessfulSearchOperationOnTicketsCategory() {
-
+    public void performSuccessfulSearchOperationOnTicketsCategory() throws IOException {
+        String optedCategory = "tickets";
+        String optedField = "subject";
+        String searchValue = "A Catastrophe in Micronesia";
+        List<JsonObject> result = Search.performSearchOperation(optedCategory, optedField, searchValue);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(result.isEmpty());
+        Assert.assertEquals(result.size(),1);
+        JsonObject searchMatch = result.get(0);
+        Assert.assertEquals(searchMatch.get("_id").getAsString(), "1a227508-9f39-427c-8f57-1b72f3fab87c");
     }
 
     @Test
-    public void performUnSuccessfulSearchOperationOnUsersCategory() {
-
+    public void performUnSuccessfulSearchOperationOnUsersCategory() throws IOException {
+        String optedCategory = "users";
+        String optedField = "_id";
+        String searchValue = "9999";
+        List<JsonObject> result = Search.performSearchOperation(optedCategory, optedField, searchValue);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
     }
 
     @Test
-    public void performUnSuccessfulSearchOperationOnOrganizationCategory() {
-
+    public void performUnSuccessfulSearchOperationOnOrganizationCategory() throws IOException {
+        String optedCategory = "organizations";
+        String optedField = "_id";
+        String searchValue = "unit-test-123";
+        List<JsonObject> result = Search.performSearchOperation(optedCategory, optedField, searchValue);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
     }
 
     @Test
-    public void performUnSuccessfulSearchOperationOnTicketsCategory() {
-
+    public void performUnSuccessfulSearchOperationOnTicketsCategory() throws IOException {
+        String optedCategory = "tickets";
+        String optedField = "_id";
+        String searchValue = "unit-123";
+        List<JsonObject> result = Search.performSearchOperation(optedCategory, optedField, searchValue);
+        Assert.assertNotNull(result);
+        Assert.assertTrue(result.isEmpty());
     }
 
-    @Test
-    public void performSearchOperationOnInvalidCategory() {
-
+    @Test (expected = Exception.class)
+    public void performSearchOperationOnInvalidCategory() throws IOException {
+        String optedCategory = "user-unit-test";
+        String optedField = "_id";
+        String searchValue = "71";
+        Search.performSearchOperation(optedCategory, optedField, searchValue);
     }
 
     @Test

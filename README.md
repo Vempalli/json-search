@@ -26,9 +26,14 @@ From json-search folder execute command `./gradlew run --console=plain -q`
 ## Technical Details
 
 ### Features Available
-* has feature 1
-* has feature 2
-* has feature 3
+* Client can select `users`, `organizations` or `tickets` as search category and we will display list of fields available on
+these categories to search from
+* User can pick a field from any of above categories and provide a value that is looking to search. The project looks for
+exact match and also partial match on the selected field
+* Matched search results are returned along with following related information
+    * On User Search include organization name and all the tickets submitted by matched user
+    * On Ticket Search include organization name and submitter name, assignee name for the matched ticket
+* Search is case sensitive
 
 ### Assumptions
 * The fields are same for each object of specific category. Ex: All user objects have same fields, all ticket objects 
@@ -66,9 +71,11 @@ between different objects or actual search results for that matter using guava b
 may be a flow chart or picture explaining different classes
 
 #### Future enhancements
-* Support multiple requests - multi threading or build a restful web application
-* Read the streaming data from url rather than a file - should need minimum code change
-* other layer of caching
+* Currently the application is built considering single user use. We can support multiple requests by implementing 
+multi threading or build a restful web application where threading model will be maintained by web server
+* We can modify the system to read the streaming data from url rather than a file. This should just be a minimal change
+* As pointed in Caching section, we can implement caching in other search operations
 
 ## Credits
-TBD
+https://github.com/google/guava/wiki/CachesExplained
+https://github.com/javaee/jsonp
