@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,7 +37,7 @@ public class Search {
      * The cache is evicted based on time. Currently it's set to 10 min this value can be made dynamic
      * and the size of cache is just set to 10 (but there are just 3 objects in our case)
      */
-    private static LoadingCache<String, Set<String>> searchableFields = CacheBuilder.newBuilder()
+    private static LoadingCache<String/*category_name*/, Set<String>/*all available fields*/> searchableFields = CacheBuilder.newBuilder()
             .maximumSize(MAXIMUM_CACHE_ENTRIES)
             .expireAfterWrite(CACHE_EXPIRE_TIME, TimeUnit.MINUTES)
             .build(

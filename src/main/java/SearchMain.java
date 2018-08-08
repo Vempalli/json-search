@@ -80,6 +80,10 @@ public class SearchMain {
         }
     }
 
+    /**
+     * This method gets the list of all available fields for a selected
+     * category (users, organization or tickets)
+     */
     private static Set<String> printAndGetAvailableFields(String selectedCategoryName) {
         Set<String> availableFields = new HashSet<>();
         try {

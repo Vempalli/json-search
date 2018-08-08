@@ -10,7 +10,37 @@ import static org.junit.Assert.*;
 public class SearchTest {
 
     @Test
-    public void performSearchOperation() {
+    public void performSuccessfulSearchOperationOnUsersCategory() {
+
+    }
+
+    @Test
+    public void performSuccessfulSearchOperationOnOrganizationCategory() {
+
+    }
+
+    @Test
+    public void performSuccessfulSearchOperationOnTicketsCategory() {
+
+    }
+
+    @Test
+    public void performUnSuccessfulSearchOperationOnUsersCategory() {
+
+    }
+
+    @Test
+    public void performUnSuccessfulSearchOperationOnOrganizationCategory() {
+
+    }
+
+    @Test
+    public void performUnSuccessfulSearchOperationOnTicketsCategory() {
+
+    }
+
+    @Test
+    public void performSearchOperationOnInvalidCategory() {
 
     }
 
