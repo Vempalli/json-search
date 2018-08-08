@@ -64,7 +64,7 @@ public class SearchMain {
 
             if (WELCOME_MENU.indexOf(QUIT) == (selectedCategory - 1)) {
                 LOGGER.info("Exiting search");
-                System.exit(1);
+                System.exit(0);
             }
             String selectedCategoryName = WELCOME_MENU.get(selectedCategory - 1);
             //2. Get the name of search field user wants to search
