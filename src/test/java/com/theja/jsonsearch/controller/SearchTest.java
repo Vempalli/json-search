@@ -11,6 +11,50 @@ import java.util.Set;
 public class SearchTest {
 
     @Test
+    public void getAvailableSearchableFieldsOnValidCategoryUsers() throws Exception {
+        String validCategory = "users";
+        Set<String> fields = Search.getAvailableSearchableFieldsOnCategory(validCategory);
+        Assert.assertNotNull(fields);
+        Assert.assertFalse(fields.isEmpty());
+        // randomly verify if some user fields are present
+        Assert.assertTrue(fields.contains("_id"));
+        Assert.assertTrue(fields.contains("name"));
+        Assert.assertTrue(fields.contains("role"));
+    }
+
+    @Test
+    public void getAvailableSearchableFieldsOnValidCategoryOrgs() throws Exception {
+        String validCategory = "organizations";
+        Set<String> fields = Search.getAvailableSearchableFieldsOnCategory(validCategory);
+        Assert.assertNotNull(fields);
+        Assert.assertFalse(fields.isEmpty());
+        // randomly verify if some user fields are present
+        Assert.assertTrue(fields.contains("_id"));
+        Assert.assertTrue(fields.contains("name"));
+        Assert.assertTrue(fields.contains("domain_names"));
+    }
+
+    @Test
+    public void getAvailableSearchableFieldsOnValidCategoryTickets() throws Exception {
+        String validCategory = "tickets";
+        Set<String> fields = Search.getAvailableSearchableFieldsOnCategory(validCategory);
+        Assert.assertNotNull(fields);
+        Assert.assertFalse(fields.isEmpty());
+        // randomly verify if some user fields are present
+        Assert.assertTrue(fields.contains("_id"));
+        Assert.assertTrue(fields.contains("submitter_id"));
+        Assert.assertTrue(fields.contains("assignee_id"));
+        Assert.assertTrue(fields.contains("subject"));
+    }
+
+    @Test(expected = Exception.class)
+    public void getAvailableSearchableFieldsOnValidCategoryInvalid() throws Exception {
+        String validCategory = "unit-test";
+        Search.getAvailableSearchableFieldsOnCategory(validCategory);
+
+    }
+
+    @Test
     public void performSuccessfulSearchOperationOnUsersCategory() throws IOException {
         String optedCategory = "users";
         String optedField = "_id";
@@ -85,49 +129,5 @@ public class SearchTest {
         String optedField = "_id";
         String searchValue = "71";
         Search.performSearchOperation(optedCategory, optedField, searchValue);
-    }
-
-    @Test
-    public void getAvailableSearchableFieldsOnValidCategoryUsers() throws Exception {
-        String validCategory = "users";
-        Set<String> fields = Search.getAvailableSearchableFieldsOnCategory(validCategory);
-        Assert.assertNotNull(fields);
-        Assert.assertFalse(fields.isEmpty());
-        // randomly verify if some user fields are present
-        Assert.assertTrue(fields.contains("_id"));
-        Assert.assertTrue(fields.contains("name"));
-        Assert.assertTrue(fields.contains("role"));
-    }
-
-    @Test
-    public void getAvailableSearchableFieldsOnValidCategoryOrgs() throws Exception {
-        String validCategory = "organizations";
-        Set<String> fields = Search.getAvailableSearchableFieldsOnCategory(validCategory);
-        Assert.assertNotNull(fields);
-        Assert.assertFalse(fields.isEmpty());
-        // randomly verify if some user fields are present
-        Assert.assertTrue(fields.contains("_id"));
-        Assert.assertTrue(fields.contains("name"));
-        Assert.assertTrue(fields.contains("domain_names"));
-    }
-
-    @Test
-    public void getAvailableSearchableFieldsOnValidCategoryTickets() throws Exception {
-        String validCategory = "tickets";
-        Set<String> fields = Search.getAvailableSearchableFieldsOnCategory(validCategory);
-        Assert.assertNotNull(fields);
-        Assert.assertFalse(fields.isEmpty());
-        // randomly verify if some user fields are present
-        Assert.assertTrue(fields.contains("_id"));
-        Assert.assertTrue(fields.contains("submitter_id"));
-        Assert.assertTrue(fields.contains("assignee_id"));
-        Assert.assertTrue(fields.contains("subject"));
-    }
-
-    @Test(expected = Exception.class)
-    public void getAvailableSearchableFieldsOnValidCategoryInvalid() throws Exception {
-        String validCategory = "unit-test";
-        Search.getAvailableSearchableFieldsOnCategory(validCategory);
-
     }
 }

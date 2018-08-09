@@ -87,5 +87,5 @@ multi threading or build a restful web application where threading model will be
 * As pointed in Caching section, we can implement caching in other search operations
 
 ## Credits
-https://github.com/google/guava/wiki/CachesExplained
-https://github.com/javaee/jsonp
+* https://github.com/google/guava/wiki/CachesExplained
+* https://github.com/javaee/jsonp
